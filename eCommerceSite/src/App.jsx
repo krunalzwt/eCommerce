@@ -18,13 +18,13 @@ function App() {
         <Route path='/' element={<Shop/>}></Route>
         <Route path='/electronics' element={<ShopCategory categoryId={2}/>}></Route>
         <Route path='/footware' element={<ShopCategory categoryId={1}/>}></Route>
-        <Route path='/fashion' element={<ShopCategory categoryId="fashion"/>}></Route>
-        <Route path='/toysandgames' element={<ShopCategory categoryId="toysandgames"/>}></Route>
+        <Route path='/fashion' element={<ShopCategory categoryId={3}/>}></Route>
+        <Route path='/toysandgames' element={<ShopCategory categoryId={4}/>}></Route>
         <Route path='/product' element={<Product/>}>
           <Route path=':productId' element={<Product/>}></Route>
         </Route>
-        <Route path='/cart' element={<Cart/>}></Route>
         <Route path='/login' element={<LoginSignup/>}></Route>
+        <Route path='/cart' element={<Cart/>}></Route>
       </Routes>
       <Footer/>
     </>

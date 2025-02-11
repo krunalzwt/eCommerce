@@ -1,53 +1,64 @@
-import React, { useContext } from "react";
+import React, { useContext,useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext";
 import "./CSS/ShopCategory.css";
 import dropdownicon from "../assets/dropdown_icon.png";
 
 export const ShopCategory = ({ categoryId }) => {
-  const { products, loading, error } = useContext(ShopContext);
+  const { products, loading, error,fetchProducts } = useContext(ShopContext);
+
+  useEffect(() => {
+    if (!products.length) {
+      fetchProducts();
+    }
+  }, [categoryId]);
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>{error}</p>;
 
   const filteredProducts =
-    products?.filter((product) => product.category_id === categoryId) || [];
+    products?.filter((product) => product.category_id === Number(categoryId)) ||
+    [];
 
   return (
     <div className="shopcategory">
       <div className="shopcategory-indexSort">
         <p>
-          <span>Showing 1-12</span> out of 36 products
+          <span>Showing {filteredProducts.length}</span> products in this
+          category
         </p>
         <div className="shopcategory-sort">
-          Sort By <img src={dropdownicon} alt="" />
+          Sort By <img src={dropdownicon} alt="Sort" />
         </div>
       </div>
+
       <div className="shopcategory-products">
         {filteredProducts.length > 0 ? (
           <ul>
-            {filteredProducts.map((product) => {
-              return (
-                <li key={product.id}>
-                  <img
-                    src={`http://localhost:8080/uploads/${product.image_url
-                      .split("\\")
-                      .pop()}`}
-                    alt={product.name}
-                  />
-                  <h3>{product.name}</h3>
-                  <p>Price: &#8377;{product.price}</p>
-                  <p>{product.description}</p>
+            {filteredProducts.map(
+              ({ id, name, price, description, image_url }) => (
+                <li key={id}>
+                  <Link to={`/product/${id}`}>
+                    <img
+                      src={`http://localhost:8080/uploads/${image_url
+                        .split("\\")
+                        .pop()}`}
+                      alt={name}
+                    />
+                    <h3>{name}</h3>
+                    <p>Price: &#8377;{price}</p>
+                    <p>{description}</p>
+                  </Link>
                 </li>
-              );
-            })}
+              )
+            )}
           </ul>
         ) : (
           <p>No products found in this category.</p>
         )}
       </div>
-      <div className="shopcategory-loadmore">
-        Explore More
-      </div>
+
+      <div className="shopcategory-loadmore">Explore More</div>
     </div>
   );
 };
