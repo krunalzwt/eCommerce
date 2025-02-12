@@ -36,7 +36,7 @@ export const ShopCategory = ({ categoryId }) => {
         {filteredProducts.length > 0 ? (
           <ul>
             {filteredProducts.map(
-              ({ id, name, price, description, image_url }) => (
+              ({ id, name, price, description, image_url,stock }) => (
                 <li key={id}>
                   <Link to={`/product/${id}`}>
                     <img

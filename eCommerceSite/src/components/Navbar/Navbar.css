@@ -73,4 +73,20 @@
     background: red;
     color: white;
 }
+.profile-icon img{
+    height: 60px;
+    width: 60px;
+    cursor: pointer;
+}
+.profile-icon{
+    display: flex;
+}
+
+.profile{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
 

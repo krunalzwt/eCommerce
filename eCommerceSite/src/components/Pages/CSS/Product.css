@@ -42,4 +42,10 @@
     outline: none;
     cursor: pointer;
 }
+.stock{
+    color:#f14141;
+    font-size: 20px;
+    font-weight: 500;
+
+}
 

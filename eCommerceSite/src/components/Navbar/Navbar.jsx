@@ -1,18 +1,28 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState ,useEffect} from "react";
 import "./Navbar.css";
 import logo from "../assets/logo.png";
 import cart_icon from "../assets/cart_icon.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext";
+import profilelogo from "../assets/profile.svg";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState("shop");
-  const { getTotalCartItems, logout, token } = useContext(ShopContext);
+  const { getTotalCartItems, logout, token, user, fetchUsers } =
+    useContext(ShopContext);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname.split("/")[1];
+    setMenu(path || "shop"); 
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+  
   return (
     <div className="navbar">
       <div className="nav-logo">
@@ -65,10 +75,19 @@ export const Navbar = () => {
       </ul>
       <div className="nav-login-cart">
         {token ? (
-          <button onClick={handleLogout}>Logout</button>
+          <div className="profile">
+            <div className="profile-icon" onClick={()=>setMenu("")}>
+              <Link to="/profile">
+                <img src={profilelogo} alt="" />
+              </Link>
+            </div>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         ) : (
           <Link to="/login">
-            <button>Login</button> 
+            <button className="login-btn">Login</button>
           </Link>
         )}
         <Link to="/cart">

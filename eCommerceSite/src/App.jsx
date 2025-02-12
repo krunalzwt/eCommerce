@@ -8,6 +8,9 @@ import { Product } from './components/Pages/Product';
 import { Cart } from './components/Pages/Cart';
 import { LoginSignup } from './components/Pages/LoginSignup';
 import { Footer } from './components/Footer/Footer';
+import {Profile} from './components/Profile/Profile';
+import { ProfileEdit } from './components/ProfileEdit/ProfileEdit';
+
 
 function App() {
 
@@ -25,6 +28,8 @@ function App() {
         </Route>
         <Route path='/login' element={<LoginSignup/>}></Route>
         <Route path='/cart' element={<Cart/>}></Route>
+        <Route path='/profile' element={<Profile/>}></Route>
+        <Route path="/ProfileEdit" element={<ProfileEdit />} />
       </Routes>
       <Footer/>
     </>
