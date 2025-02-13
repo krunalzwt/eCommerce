@@ -40,3 +40,10 @@
     border-radius: 5px;
     font-weight: bold;
 }
+
+.title-div{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+}

@@ -7,6 +7,7 @@ import { Orders } from "./Orders";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AdminPanel } from "./AdminPanel";
 import { EditProduct } from "./EditProduct/EditProduct";
+import { CreateProduct } from "./CreateProduct/CreateProduct";
 
 export const Admin = () => {
   return (
@@ -16,6 +17,7 @@ export const Admin = () => {
         <Route path="/adminpanel" element={<AdminPanel/>}/>
         <Route path="/products" element={<Products />} />
         <Route path="/editproducts/:id" element={<EditProduct />} />
+        <Route path="/createproduct" element={<CreateProduct />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/users" element={<Users />} />

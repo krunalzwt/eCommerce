@@ -110,6 +110,47 @@ export const ShopContextProvider = ({ children }) => {
       toast.error("Something went wrong. Please try again.");
     }
   };
+
+  const createProducts=async(updatedData)=>{
+    try {
+      const role = sessionStorage.getItem("role");
+      if (role !== "admin") {
+        toast.error("You cannot add products!");
+        return;
+      }
+      const response = await axios.post(
+        `http://localhost:8080/api/products`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      if (response.status === 201) {
+        toast.success("Product created successfully!");
+      } else {
+        toast.error("Failed to create product.");
+      }
+    } catch (error) {
+      console.error("Error creating product:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
+
+  const deleteProduct=async(cartItemId)=>{
+    if (!token) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/products/${cartItemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchProducts();
+    } catch (err) {
+      console.error("Error removing from cart:", err);
+    }
+  }
   
   
   
@@ -356,6 +397,8 @@ export const ShopContextProvider = ({ children }) => {
     return allUsers.length;
   };
 
+
+
   
   const fetchAllOrders = async () => {
     try {
@@ -377,6 +420,18 @@ export const ShopContextProvider = ({ children }) => {
       console.error("Error fetching order items:", error);
     }
   };
+
+  const getTotalOrders = () => {
+    return allOrders.length;
+  };
+  const getTotalCategories = () => {
+    return categories.length;
+  };
+  const getTotalProducts = () => {
+    return products.length;
+  };
+
+
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -436,9 +491,11 @@ export const ShopContextProvider = ({ children }) => {
         addNewCategories,
         fetchCart,
         getTotalCartItems,
+        createProducts,
         getTotalUsers,
         updateOrderStatus,
         fetchCategories,
+        deleteProduct,
         placeOrder,
         user,
         signup,
@@ -453,6 +510,9 @@ export const ShopContextProvider = ({ children }) => {
         fetchAllUsers,
         allUsers,
         updateProducts,
+        getTotalOrders,
+        getTotalCategories,
+        getTotalProducts,
         logout,
       }}
     >

@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../../../../Context/ShopContext";
 import { useParams } from "react-router-dom";
-import "./EditProduct.css";
+// import "./EditProduct.css";
 
-export const EditProduct = () => {
-    const { updateProducts, products } = useContext(ShopContext);
+export const CreateProduct = () => {
+    const { createProducts } = useContext(ShopContext);
     const { id } = useParams();
     
     const [name, setName] = useState("");
@@ -12,17 +12,7 @@ export const EditProduct = () => {
     const [price, setPrice] = useState("");
     const [stock, setStock] = useState("");
     const [productPicture, setProductPicture] = useState(null); 
-    
-    useEffect(() => {
-      const product = products.find((p) => p.id === parseInt(id));
-      if (product) {
-        setName(product.name);
-        setDescription(product.description);
-        setPrice(product.price);
-        setStock(product.stock);
-      }
-      console.log("Product ID:", id);
-    }, [id, products]);
+    const [category_id, setcategory_id] = useState(null); 
     
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -32,15 +22,13 @@ export const EditProduct = () => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("stock", stock);
+      formData.append("category_id", category_id);
     
       if (productPicture instanceof File) {
         formData.append("productPicture", productPicture);
       }
-      console.log("Product ID from useParams:", id);
-
-    
       try {
-        await updateProducts(id, formData);
+        await createProducts(formData);
       } catch (error) {
         console.error("Product update error:", error);
       }
@@ -49,7 +37,7 @@ export const EditProduct = () => {
     return (
       <div className="loginsignup">
         <div className="loginsignup-container">
-          <h1>Edit Product</h1>
+          <h1>Create Product</h1>
           <form className="loginsignup-feilds" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -76,12 +64,18 @@ export const EditProduct = () => {
               onChange={(e) => setStock(e.target.value)}
             />
             <input
+              type="number"
+              placeholder="Category_id"
+              value={category_id}
+              onChange={(e) => setcategory_id(e.target.value)}
+            />
+            <input
               type="file"
               name="productPicture"
               accept="image/*"
               onChange={(e) => setProductPicture(e.target.files[0])}
             />
-            <button type="submit">Update</button>
+            <button type="submit">Create</button>
           </form>
         </div>
       </div>

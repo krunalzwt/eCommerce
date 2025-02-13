@@ -4,7 +4,7 @@ import axios from "axios";
 import { ShopContext } from "../../../Context/ShopContext";
 
 export const AdminPanel = () => {
-  const { getTotalUsers,fetchAllUsers } = useContext(ShopContext);
+  const { getTotalUsers,fetchAllUsers,getTotalProducts,getTotalCategories,getTotalOrders } = useContext(ShopContext);
   useEffect(() => {
       fetchAllUsers();
     }, []);
@@ -21,15 +21,15 @@ export const AdminPanel = () => {
           </div>
           <div className="site-info-box">
             <h2>Total Orders</h2>
-            <p></p>
+            <p>{getTotalOrders()}</p>
           </div>
           <div className="site-info-box">
             <h2>Total Categories</h2>
-            <p></p>
+            <p>{getTotalCategories()}</p>
           </div>
           <div className="site-info-box">
             <h2>Total Products</h2>
-            <p></p>
+            <p>{getTotalProducts()}</p>
           </div>
         </div>
       </div>

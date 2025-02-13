@@ -4,7 +4,7 @@ import "./CSS/Products.css";
 import { useNavigate } from "react-router-dom";
 
 export const Products = () => {
-  const { fetchProducts, products } = useContext(ShopContext);
+  const { fetchProducts, products,deleteProduct } = useContext(ShopContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +13,10 @@ export const Products = () => {
 
   return (
     <div className="products-container">
-      <h1 className="products-title">Products</h1>
+      <div className="title-div">
+        <h1 className="products-title">Products</h1>
+        <button className="edit-button" onClick={() => navigate(`/admin/createproduct/`)}>Create Product</button>
+      </div>
       <table className="products-table">
         <thead>
           <tr>
@@ -53,6 +56,12 @@ export const Products = () => {
                     onClick={() => navigate(`/admin/editproducts/${item.id}`)}
                   >
                     Edit
+                  </button> <br /><br />
+                  <button
+                    className="edit-button"
+                    onClick={() => deleteProduct(item.id)}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
