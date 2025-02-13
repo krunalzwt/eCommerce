@@ -60,10 +60,10 @@
     margin-top: 15px;
     font-size: 14px;
     color: #656565;
-    cursor: pointer;
 }
 
 .loginsignup-login span {
+    cursor: pointer;
     color: #f14141;
     font-weight: 600;
 }

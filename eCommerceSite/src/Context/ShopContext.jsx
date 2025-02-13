@@ -15,6 +15,8 @@ export const ShopContextProvider = ({ children }) => {
   const [role, setRole] = useState(sessionStorage.getItem("role") || null);
   const [user, setUser] = useState(null);
   const [orderItems, setorderItems] = useState([]);
+  const[allUsers,setallUsers]=useState([]);
+  const[allOrders,setAllOrders]=useState([]);
 
   const fetchUsers = async () => {
     try {
@@ -39,7 +41,7 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-  // issue in updating profile
+
   const updateUserProfile = async (updatedData) => {
     try {
       const token = sessionStorage.getItem("token");
@@ -76,6 +78,42 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
+  const updateProducts = async (id, updatedData) => {
+    try {
+      if (!id) {
+        console.error("Product ID is missing!");
+        return;
+      }
+      const role = sessionStorage.getItem("role");
+      if (role !== "admin") {
+        toast.error("You cannot edit products!");
+        return;
+      }
+      const response = await axios.patch(
+        `http://localhost:8080/api/products/${id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast.success("Product updated successfully!");
+      } else {
+        toast.error("Failed to update product.");
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+  
+  
+  
+
   const fetchCategories = async () => {
     try {
       const { data } = await axios.get("http://localhost:8080/api/categories");
@@ -85,12 +123,44 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
+  const addNewCategories = async (categoryData) => {
+    try {
+      const role = sessionStorage.getItem("role");
+      if (role !== "admin") {
+        toast.error("You cannot add categories!");
+        return;
+      }
+  
+      const token = sessionStorage.getItem("token"); 
+      const response = await axios.post(
+        "http://localhost:8080/api/categories",
+        categoryData, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 201) { 
+        toast.success("Category added successfully!");
+        setCategories([...categories, response.data]);
+      } else {
+        toast.error("Failed to add category.");
+      }
+    } catch (error) {
+      console.error("Error adding category:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+  
+
+
   const fetchCart = async () => {
     if (!token) {
       setCart([]);
       return;
     }
-
     try {
       const { data, status } = await axios.get(
         "http://localhost:8080/api/cart",
@@ -102,14 +172,17 @@ export const ShopContextProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching cart:", err);
       setCart([]);
-      if (err.response?.status !== 404) {
+      if (err.response?.status !== 404 && user.role==='customer') {
         toast.error("Failed to load cart");
       }
     }
   };
 
   const addToCart = async (product_id, quantity = 1) => {
-    if (!token) return toast.info("Please log in to add items to cart!");
+    if (!token) {
+      toast.info("Please log in to add items to cart!");
+      return;
+    }
 
     try {
       await axios.post(
@@ -117,9 +190,11 @@ export const ShopContextProvider = ({ children }) => {
         { product_id, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      toast.success("Item added to the cart!");
       fetchCart();
     } catch (err) {
       console.error("Error adding to cart:", err);
+      toast.error("Failed to add item to cart.");
     }
   };
 
@@ -154,6 +229,54 @@ export const ShopContextProvider = ({ children }) => {
         toast.error("Looks like you are an Admin!! Please login to admin panel");
         return false;
       }
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("role", data.role);
+      setToken(data.token);
+      setRole(data.role);
+      toast.success("Login Successful!!");
+      return true;
+    } catch (err) {
+      toast.error("Invalid credentials");
+      return false;
+    }
+  };
+
+  const signup = async (first_name,last_name,email,password) => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:8080/api/auth/signup",
+        {
+          first_name,
+          last_name,
+          email,
+          password,
+          role
+        }
+      );
+      toast.success("User Created Successfully!!Login Now!!");
+      return true;
+    } catch (err) {
+      console.log(err);
+      toast.error("Something Error!");
+      return false;
+    }
+  };
+
+
+  const adminLogin = async (email, password) => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        {
+          username: email,
+          password,
+        }
+      );
+      console.log(data.role);
+      if (data.role === "customer") {
+        toast.error("Looks like you are a Customer!! Please login to Customer panel");
+        return false;
+      }
 
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("role", data.role);
@@ -172,6 +295,9 @@ export const ShopContextProvider = ({ children }) => {
     sessionStorage.removeItem("token");
     setToken(null);
     setCart([]);
+    setRole(null);
+    setUser(null);
+    setorderItems([]);
   };
 
   const placeOrder = async () => {
@@ -198,15 +324,89 @@ export const ShopContextProvider = ({ children }) => {
   const fetchOrderItems = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.get("http://localhost:8080/api/orderitem", {
+      const response = await axios.get("http://localhost:8080/api/orders", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched Order Items:", response.data); // Log response
-
-      setorderItems(response.data); // Ensure it updates context state
+      console.log("Fetched Order Items:", response.data); 
+      setorderItems(response.data); 
     } catch (error) {
       console.error("Error fetching order items:", error);
+    }
+  };
+
+
+  // Admin ContextApi
+  const fetchAllUsers=async()=>{
+    try {
+      const role = sessionStorage.getItem("role");
+      if(role!=='admin'){
+        toast.error("only admin can fetch all users data!!")
+      }
+      const response = await axios.get("http://localhost:8080/api/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setallUsers(response.data); 
+    } catch (error) {
+      console.error("Error fetching all users items:", error);
+    }
+  }
+
+  const getTotalUsers = () => {
+    return allUsers.length;
+  };
+
+  
+  const fetchAllOrders = async () => {
+    try {
+      const token = sessionStorage.getItem("token"); 
+      const role = sessionStorage.getItem("role");
+  
+      if (role !== "admin") {
+        console.warn("Unauthorized access attempt: Only admins can fetch orders.");
+        return;
+      }
+  
+      const response = await axios.get("http://localhost:8080/api/allorders", {
+        headers: { Authorization: `Bearer ${token}` }, 
+      });
+  
+      console.log("Fetched Order Items:", response.data);
+      setAllOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching order items:", error);
+    }
+  };
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const role = sessionStorage.getItem("role");
+  
+      if (role !== "admin") {
+        console.warn("Unauthorized access attempt: Only admins can update orders.");
+        return;
+      }
+  
+      const response = await axios.put(
+        `http://localhost:8080/api/orders/${orderId}/status`,
+        { status: newStatus },
+        {
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast.success("Order status updated successfully!");
+  
+      
+        fetchAllOrders();
+      } else {
+        toast.error("Failed to update order status.");
+      }
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -228,20 +428,31 @@ export const ShopContextProvider = ({ children }) => {
         error,
         role,
         login,
+        adminLogin,
         addToCart,
         removeFromCart,
         token,
         fetchProducts,
+        addNewCategories,
         fetchCart,
         getTotalCartItems,
+        getTotalUsers,
+        updateOrderStatus,
+        fetchCategories,
         placeOrder,
         user,
+        signup,
         setUser,
+        fetchAllOrders,
         fetchUsers,
+        allOrders,
         updateUserProfile,
         orderItems,
         setorderItems,
         fetchOrderItems,
+        fetchAllUsers,
+        allUsers,
+        updateProducts,
         logout,
       }}
     >

@@ -10,7 +10,9 @@ import { LoginSignup } from './components/Pages/LoginSignup';
 import { Footer } from './components/Footer/Footer';
 import {Profile} from './components/Profile/Profile';
 import { ProfileEdit } from './components/ProfileEdit/ProfileEdit';
-
+import {Admin} from './components/Pages/admin/Admin';
+import {AdminLogin} from './components/Pages/AdminLogin';
+import { AdminPanel } from './components/Pages/admin/AdminPanel';
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
           <Route path=':productId' element={<Product/>}></Route>
         </Route>
         <Route path='/login' element={<LoginSignup/>}></Route>
+        <Route path='/AdminLogin' element={<AdminLogin/>}></Route>
+        <Route path='/admin/*' element={<Admin/>}/>
         <Route path='/cart' element={<Cart/>}></Route>
         <Route path='/profile' element={<Profile/>}></Route>
         <Route path="/ProfileEdit" element={<ProfileEdit />} />

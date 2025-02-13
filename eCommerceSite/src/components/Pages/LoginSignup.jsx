@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { ShopContext } from "../../Context/ShopContext";
-import { useNavigate } from "react-router-dom";
-import './CSS/LoginSignup.css'
+import { Link, useNavigate } from "react-router-dom";
+import "./CSS/LoginSignup.css";
 
 export const LoginSignup = () => {
   const [first_name, setFirstName] = useState("");
@@ -17,36 +17,64 @@ export const LoginSignup = () => {
     try {
       if (isLogin) {
         const success = await login(email, password);
-        if (!success) return; 
-        navigate("/"); 
+        if (!success) return;
+        navigate("/");
       } else {
-        await signup({ first_name, last_name, email, password });
-        navigate("/"); 
+        await signup(first_name, last_name, email, password);
+        navigate("/");
       }
     } catch (error) {
       console.error(isLogin ? "Login error:" : "Signup error:", error);
     }
   };
-  
-  
 
   return (
-    <div className='loginsignup'>
+    <div className="loginsignup">
       <div className="loginsignup-container">
         <h1>{isLogin ? "Login" : "Sign Up"}</h1>
         <form className="loginsignup-feilds" onSubmit={handleSubmit}>
           {!isLogin && (
             <>
-              <input type="text" placeholder='First Name' value={first_name} onChange={(e) => setFirstName(e.target.value)} required />
-              <input type="text" placeholder='Last Name' value={last_name} onChange={(e) => setLastName(e.target.value)} required />
+              <input
+                type="text"
+                placeholder="First Name"
+                value={first_name}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={last_name}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
             </>
           )}
-          <input type="email" placeholder='Email Address' value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           <button type="submit">{isLogin ? "Login" : "Continue"}</button>
-          <p className="loginsignup-login" onClick={() => setIsLogin(!isLogin)}>
+          <p className="loginsignup-login" >
             {isLogin ? "Don't have an account? " : "Already Have an Account? "}
-            <span className="highlight-text">{isLogin ? "Signup Here!" : "Login Here!"}</span>
+            <span className="highlight-text" onClick={() => setIsLogin(!isLogin)}>
+              {isLogin ? "Signup Here!" : "Login Here!"}
+            </span>
+          </p>
+          <p className="loginsignup-login">
+            Are you an admin?{" "}
+            <span className="highlight-text" onClick={() => navigate("/AdminLogin")}>Login Here!</span>
           </p>
         </form>
       </div>

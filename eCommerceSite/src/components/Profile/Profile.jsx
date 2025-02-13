@@ -6,12 +6,12 @@ import { ProfileEdit } from "../ProfileEdit/ProfileEdit";
 
 export const Profile = () => {
   const { user, orderItems = [] } = useContext(ShopContext);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("Updated User in Context:", user);
-    console.log("Updated Order Items in Context:", orderItems);
-  }, [user, orderItems.length]);
+  // useEffect(() => {
+  //   console.log("Updated User in Context:", user);
+  //   console.log("Updated Order Items in Context:", orderItems);
+  // }, [user, orderItems.length]);
 
   if (!user) {
     return <p>Loading user data...</p>;
@@ -25,7 +25,9 @@ export const Profile = () => {
             <h1>My Profile</h1>
           </div>
           <div className="edit-btn">
-              <button onClick={()=>navigate("/ProfileEdit")}>Edit Profile</button>
+            <button onClick={() => navigate("/ProfileEdit")}>
+              Edit Profile
+            </button>
           </div>
         </div>
         <div className="profile-data">
@@ -47,25 +49,31 @@ export const Profile = () => {
         {orderItems.length === 0 ? (
           <p>No Order History!</p>
         ) : (
-          orderItems.map((item) => (
-            <div
-              key={item.id}
-              className="cartitems-format cartitems-format-main"
-            >
-              <img
-                className="carticon-product-icon"
-                src={`http://localhost:8080/uploads/${item.product.image_url
-                  .split("\\")
-                  .pop()}`}
-                alt={item.product.name}
-              />
-              <p>{item.product.name}</p>
-              <p>&#8377;{item.price}</p>
-              <button className="cartitems-quantity">{item.quantity}</button>
-              <p>&#8377;{(item.price * item.quantity).toFixed(2)}</p>
-              <p>{item.order?.status}</p>
-            </div>
-          ))
+          orderItems.map((order) =>
+            order.orderItems.map((item, index) => (
+              <div
+                key={index}
+                className="cartitems-format cartitems-format-main"
+              >
+                <img
+                  className="carticon-product-icon"
+                  src={
+                    item.product?.image_url
+                      ? `http://localhost:8080/uploads/${item.product.image_url
+                          .split("\\")
+                          .pop()}`
+                      : ""
+                  }
+                  alt={item.product?.name}
+                />
+                <p>{item.product?.name}</p>
+                <p>&#8377;{item.price}</p>
+                <button className="cartitems-quantity">{item.quantity}</button>
+                <p>&#8377;{(item.price * item.quantity).toFixed(2)}</p>
+                <p>{order.status}</p>
+              </div>
+            ))
+          )
         )}
       </div>
     </div>
