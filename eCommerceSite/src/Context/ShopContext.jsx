@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const ShopContext = createContext();
 
@@ -10,22 +12,23 @@ export const ShopContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(sessionStorage.getItem("token") || null);
+  const [role, setRole] = useState(sessionStorage.getItem("role") || null);
   const [user, setUser] = useState(null);
   const [orderItems, setorderItems] = useState([]);
-
 
   const fetchUsers = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      console.log("Stored Token:", token); 
-  
       if (!token) {
-        console.error("No token found in sessionStorage.");
+        console.error("No token found in sessionStorage .");
         return;
       }
-      const response = await axios.get("http://localhost:8080/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "http://localhost:8080/api/users/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       console.log("Fetched User Data:", response.data);
       setUser(response.data);
     } catch (error) {
@@ -36,24 +39,32 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-// issue in updating profile
+  // issue in updating profile
   const updateUserProfile = async (updatedData) => {
     try {
-      const response = await axios.patch("http://localhost:8080/api/users/profile/", updatedData, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const token = sessionStorage.getItem("token");
+      const response = await axios.patch(
+        "http://localhost:8080/api/users/profile/",
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 200) {
-        alert("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
       } else {
-        alert("Failed to update profile.");
+        toast.error("Failed to update profile.");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
-  
+
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("http://localhost:8080/api/products");
@@ -92,13 +103,13 @@ export const ShopContextProvider = ({ children }) => {
       console.error("Error fetching cart:", err);
       setCart([]);
       if (err.response?.status !== 404) {
-        setError("Failed to load cart");
+        toast.error("Failed to load cart");
       }
     }
   };
 
   const addToCart = async (product_id, quantity = 1) => {
-    if (!token) return alert("Please log in to add items to cart!");
+    if (!token) return toast.info("Please log in to add items to cart!");
 
     try {
       await axios.post(
@@ -138,14 +149,22 @@ export const ShopContextProvider = ({ children }) => {
           password,
         }
       );
+      console.log(data.role);
+      if (data.role === "admin") {
+        toast.error("Looks like you are an Admin!! Please login to admin panel");
+        return false;
+      }
 
       sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("role", data.role);
       setToken(data.token);
+      setRole(data.role);
+      toast.success("Login Successful!!");
+
+      return true;
     } catch (err) {
-      setError("Invalid credentials");
-      if (err.response?.status == 404) {
-        alert("invalid credentials!!");
-      }
+      toast.error("Invalid credentials");
+      return false;
     }
   };
 
@@ -157,7 +176,7 @@ export const ShopContextProvider = ({ children }) => {
 
   const placeOrder = async () => {
     if (!token) {
-      alert("Please log in to place an order!");
+      toast.info("Please log in to place an order!");
       return;
     }
     try {
@@ -166,12 +185,12 @@ export const ShopContextProvider = ({ children }) => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Order placed successfully!");
+      toast.success("Order placed successfully!");
       setCart([]);
       fetchOrderItems();
     } catch (err) {
       if (err.response?.status == 403) {
-        alert("Stock is not available , please remove Some Items!!");
+        toast.info("Stock is not available , please remove Some Items!!");
       }
     }
   };
@@ -182,29 +201,22 @@ export const ShopContextProvider = ({ children }) => {
       const response = await axios.get("http://localhost:8080/api/orderitem", {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       console.log("Fetched Order Items:", response.data); // Log response
-  
+
       setorderItems(response.data); // Ensure it updates context state
     } catch (error) {
       console.error("Error fetching order items:", error);
     }
   };
-  
-  
-  
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+    fetchUsers();
+    fetchOrderItems();
     if (token) fetchCart();
   }, [token]);
-  
-  useEffect(() => {
-    fetchUsers();
-    fetchOrderItems(); // Call API on component mount
-  }, []);
-  
 
   return (
     <ShopContext.Provider
@@ -214,6 +226,7 @@ export const ShopContextProvider = ({ children }) => {
         cart,
         loading,
         error,
+        role,
         login,
         addToCart,
         removeFromCart,
@@ -223,9 +236,11 @@ export const ShopContextProvider = ({ children }) => {
         getTotalCartItems,
         placeOrder,
         user,
+        setUser,
         fetchUsers,
         updateUserProfile,
         orderItems,
+        setorderItems,
         fetchOrderItems,
         logout,
       }}

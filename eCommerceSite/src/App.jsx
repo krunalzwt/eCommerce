@@ -12,10 +12,12 @@ import {Profile} from './components/Profile/Profile';
 import { ProfileEdit } from './components/ProfileEdit/ProfileEdit';
 
 
+
 function App() {
 
   return (
     <>
+    
       <Navbar/>
       <Routes>
         <Route path='/' element={<Shop/>}></Route>

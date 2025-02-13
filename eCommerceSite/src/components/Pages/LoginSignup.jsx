@@ -16,15 +16,19 @@ export const LoginSignup = () => {
     e.preventDefault();
     try {
       if (isLogin) {
-        await login(email, password);
+        const success = await login(email, password);
+        if (!success) return; 
+        navigate("/"); 
       } else {
         await signup({ first_name, last_name, email, password });
+        navigate("/"); 
       }
-      navigate("/");
     } catch (error) {
       console.error(isLogin ? "Login error:" : "Signup error:", error);
     }
   };
+  
+  
 
   return (
     <div className='loginsignup'>
