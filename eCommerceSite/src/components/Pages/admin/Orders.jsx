@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { ShopContext } from "../../../Context/ShopContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const Orders = () => {
   const { allOrders, fetchAllOrders, updateOrderStatus } = useContext(ShopContext);
@@ -9,7 +10,8 @@ export const Orders = () => {
   useEffect(() => {
     const role = sessionStorage.getItem("role");
     if (role !== "admin") {
-      alert("Access denied. Only admins can view orders.");
+      toast.error("Access denied. Only admins can view orders.");
+      navigate('/');
       return;
     }
 

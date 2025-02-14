@@ -46,7 +46,15 @@ export const CartItems = () => {
             <p>&#8377;{item.product.price * item.quantity}</p>
             <img
               src={remove_icon}
-              onClick={() => removeFromCart(item.id)}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Are you sure you want to remove this item from your cart?"
+                  )
+                ) {
+                  removeFromCart(item.id);
+                }
+              }}
               alt=""
               className="carticon-remove-icon"
             />

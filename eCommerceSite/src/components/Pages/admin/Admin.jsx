@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Categories } from "./Categories";
 import { Users } from "./Users";
 import { Products } from "./Products";
@@ -8,8 +8,19 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AdminPanel } from "./AdminPanel";
 import { EditProduct } from "./EditProduct/EditProduct";
 import { CreateProduct } from "./CreateProduct/CreateProduct";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Admin = () => {
+  const navigate = useNavigate()
+  useEffect(() => {
+      const role = sessionStorage.getItem("role");
+      if (role !== "admin") {
+        toast.error("Access denied. Only Admin Can access these routes!!.");
+        navigate('/');
+        return;
+      }
+    }, []);
   return (
     <>
       <Outlet />

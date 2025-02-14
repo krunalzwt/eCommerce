@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../utilities/axiosInstance";
 
 export const ShopContext = createContext();
 
@@ -15,8 +16,8 @@ export const ShopContextProvider = ({ children }) => {
   const [role, setRole] = useState(sessionStorage.getItem("role") || null);
   const [user, setUser] = useState(null);
   const [orderItems, setorderItems] = useState([]);
-  const[allUsers,setallUsers]=useState([]);
-  const[allOrders,setAllOrders]=useState([]);
+  const [allUsers, setallUsers] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
 
   const fetchUsers = async () => {
     try {
@@ -40,7 +41,6 @@ export const ShopContextProvider = ({ children }) => {
       }
     }
   };
-
 
   const updateUserProfile = async (updatedData) => {
     try {
@@ -99,7 +99,7 @@ export const ShopContextProvider = ({ children }) => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         toast.success("Product updated successfully!");
       } else {
@@ -111,7 +111,7 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-  const createProducts=async(updatedData)=>{
+  const createProducts = async (updatedData) => {
     try {
       const role = sessionStorage.getItem("role");
       if (role !== "admin") {
@@ -128,27 +128,21 @@ export const ShopContextProvider = ({ children }) => {
           },
         }
       );
-      
-  
       if (response.status === 201) {
         toast.success("Product created successfully!");
       } else {
         toast.error("Failed to create product.");
       }
     } catch (error) {
-      if (error.response) {
-        if (error.response.status === 400) {
-          toast.error("This category does not exist!!");
-        } else {
-          toast.error("Something went wrong. Please try again.");
-        }
-      } else {
-        toast.error("Network error or server not responding.");
+      if (response.status === 400) {
+        toast.error("this category does not exists!!");
       }
+      console.error("Error creating product:", error);
+      toast.error("Something went wrong. Please try again.");
     }
-  }
+  };
 
-  const deleteProduct=async(cartItemId)=>{
+  const deleteProduct = async (cartItemId) => {
     if (!token) return;
     try {
       await axios.delete(`http://localhost:8080/api/products/${cartItemId}`, {
@@ -158,8 +152,8 @@ export const ShopContextProvider = ({ children }) => {
     } catch (err) {
       console.error("Error removing from cart:", err);
     }
-  }
-  
+  };
+
   const fetchCategories = async () => {
     try {
       const { data } = await axios.get("http://localhost:8080/api/categories");
@@ -176,11 +170,11 @@ export const ShopContextProvider = ({ children }) => {
         toast.error("You cannot add categories!");
         return;
       }
-  
-      const token = sessionStorage.getItem("token"); 
+
+      const token = sessionStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:8080/api/categories",
-        categoryData, 
+        categoryData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -188,7 +182,7 @@ export const ShopContextProvider = ({ children }) => {
           },
         }
       );
-      if (response.status === 201) { 
+      if (response.status === 201) {
         toast.success("Category added successfully!");
         setCategories([...categories, response.data]);
       } else {
@@ -199,8 +193,6 @@ export const ShopContextProvider = ({ children }) => {
       toast.error("Something went wrong. Please try again.");
     }
   };
-  
-
 
   const fetchCart = async () => {
     if (!token) {
@@ -218,7 +210,7 @@ export const ShopContextProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching cart:", err);
       setCart([]);
-      if (err.response?.status !== 404 && user.role==='customer') {
+      if (err.response?.status !== 404 && user.role === "customer") {
         toast.error("Failed to load cart");
       }
     }
@@ -246,11 +238,13 @@ export const ShopContextProvider = ({ children }) => {
 
   const removeFromCart = async (cartItemId) => {
     if (!token) return;
+    
 
     try {
       await axios.delete(`http://localhost:8080/api/cart/${cartItemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      toast.success("product is removed from the cart!!")
       fetchCart();
     } catch (err) {
       console.error("Error removing from cart:", err);
@@ -272,7 +266,9 @@ export const ShopContextProvider = ({ children }) => {
       );
       console.log(data.role);
       if (data.role === "admin") {
-        toast.error("Looks like you are an Admin!! Please login to admin panel");
+        toast.error(
+          "Looks like you are an Admin!! Please login to admin panel"
+        );
         return false;
       }
       sessionStorage.setItem("token", data.token);
@@ -287,7 +283,7 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-  const signup = async (first_name,last_name,email,password) => {
+  const signup = async (first_name, last_name, email, password,role="customer") => {
     try {
       const { data } = await axios.post(
         "http://localhost:8080/api/auth/signup",
@@ -302,12 +298,19 @@ export const ShopContextProvider = ({ children }) => {
       toast.success("User Created Successfully!!Login Now!!");
       return true;
     } catch (err) {
-      console.log(err);
-      toast.error("Something Error!");
+      if (err.response) {
+        if (err.response.status === 403) {
+          toast.error("User with this email already exists!!");
+        } else if(err.response.status===400) {
+          toast.error("invalid format:remove spaces,digits or special symbols from first name");
+        }
+      } else {
+        toast.error("No response from server. Please check your connection.");
+      }
+      console.log(err.response.data.message);
       return false;
     }
   };
-
 
   const adminLogin = async (email, password) => {
     try {
@@ -320,7 +323,9 @@ export const ShopContextProvider = ({ children }) => {
       );
       console.log(data.role);
       if (data.role === "customer") {
-        toast.error("Looks like you are a Customer!! Please login to Customer panel");
+        toast.error(
+          "Looks like you are a Customer!! Please login to Customer panel"
+        );
         return false;
       }
 
@@ -374,51 +379,49 @@ export const ShopContextProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched Order Items:", response.data); 
-      setorderItems(response.data); 
+      console.log("Fetched Order Items:", response.data);
+      setorderItems(response.data);
     } catch (error) {
       console.error("Error fetching order items:", error);
     }
   };
 
-
   // Admin ContextApi
-  const fetchAllUsers=async()=>{
+  const fetchAllUsers = async () => {
     try {
       const role = sessionStorage.getItem("role");
-      if(role!=='admin'){
-        toast.error("only admin can fetch all users data!!")
+      if (role !== "admin") {
+        toast.error("only admin can fetch all users data!!");
       }
       const response = await axios.get("http://localhost:8080/api/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setallUsers(response.data); 
+      setallUsers(response.data);
     } catch (error) {
       console.error("Error fetching all users items:", error);
     }
-  }
+  };
 
   const getTotalUsers = () => {
     return allUsers.length;
   };
 
-
-
-  
   const fetchAllOrders = async () => {
     try {
-      const token = sessionStorage.getItem("token"); 
+      const token = sessionStorage.getItem("token");
       const role = sessionStorage.getItem("role");
-  
+
       if (role !== "admin") {
-        console.warn("Unauthorized access attempt: Only admins can fetch orders.");
+        console.warn(
+          "Unauthorized access attempt: Only admins can fetch orders."
+        );
         return;
       }
-  
+
       const response = await axios.get("http://localhost:8080/api/allorders", {
-        headers: { Authorization: `Bearer ${token}` }, 
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       console.log("Fetched Order Items:", response.data);
       setAllOrders(response.data);
     } catch (error) {
@@ -436,30 +439,32 @@ export const ShopContextProvider = ({ children }) => {
     return products.length;
   };
 
-
-
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = sessionStorage.getItem("token");
       const role = sessionStorage.getItem("role");
-  
+
       if (role !== "admin") {
-        console.warn("Unauthorized access attempt: Only admins can update orders.");
+        console.warn(
+          "Unauthorized access attempt: Only admins can update orders."
+        );
         return;
       }
-  
+
       const response = await axios.put(
         `http://localhost:8080/api/orders/${orderId}/status`,
         { status: newStatus },
         {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
-  
+
       if (response.status === 200) {
         toast.success("Order status updated successfully!");
-  
-      
+
         fetchAllOrders();
       } else {
         toast.error("Failed to update order status.");

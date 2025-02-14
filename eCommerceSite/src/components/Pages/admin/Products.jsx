@@ -4,7 +4,7 @@ import "./CSS/Products.css";
 import { useNavigate } from "react-router-dom";
 
 export const Products = () => {
-  const { fetchProducts, products,deleteProduct } = useContext(ShopContext);
+  const { fetchProducts, products, deleteProduct } = useContext(ShopContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,7 +15,12 @@ export const Products = () => {
     <div className="products-container">
       <div className="title-div">
         <h1 className="products-title">Products</h1>
-        <button className="edit-button" onClick={() => navigate(`/admin/createproduct/`)}>Create Product</button>
+        <button
+          className="edit-button"
+          onClick={() => navigate(`/admin/createproduct/`)}
+        >
+          Create Product
+        </button>
       </div>
       <table className="products-table">
         <thead>
@@ -56,10 +61,20 @@ export const Products = () => {
                     onClick={() => navigate(`/admin/editproducts/${item.id}`)}
                   >
                     Edit
-                  </button> <br /><br />
+                  </button>{" "}
+                  <br />
+                  <br />
                   <button
                     className="edit-button"
-                    onClick={() => deleteProduct(item.id)}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this product?"
+                        )
+                      ) {
+                        deleteProduct(item.id);
+                      }
+                    }}
                   >
                     Delete
                   </button>
