@@ -8,11 +8,12 @@ import cart_icon from "../assets/cart_icon.png";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState("shop");
-  const { getTotalCartItems, logout, token, user } = useContext(ShopContext);
+  const { getTotalCartItems, logout, token, user, fetchCategories, categories } = useContext(ShopContext);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    fetchCategories(); // Fetch categories on mount
     const path = location.pathname.split("/")[1];
     setMenu(path || "shop");
   }, [location.pathname]);
@@ -34,44 +35,36 @@ export const Navbar = () => {
       <ul className="nav-menu">
         {user?.role === "admin" ? (
           <>
-            <li onClick={() => setMenu("products")}>
-              <Link to="/admin/products">Products</Link>
-              {menu === "products" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("orders")}>
-              <Link to="/admin/orders">Orders</Link>
-              {menu === "orders" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("categories")}>
-              <Link to="/admin/categories">Categories</Link>
-              {menu === "categories" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("users")}>
-              <Link to="/admin/users">Users</Link>
-              {menu === "users" ? <hr /> : null}
-            </li>
+            <li><Link to="/admin/products">Products</Link></li>
+            <li><Link to="/admin/orders">Orders</Link></li>
+            <li><Link to="/admin/categories">Categories</Link></li>
+            <li><Link to="/admin/users">Users</Link></li>
           </>
         ) : (
           <>
-            <li onClick={() => setMenu("shop")}>
-              <Link to="/">Shop</Link>
-              {menu === "shop" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("electronics")}>
-              <Link to="/electronics">Electronics</Link>
-              {menu === "electronics" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("footware")}>
-              <Link to="/footware">Footwear</Link>
-              {menu === "footware" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("fashion")}>
-              <Link to="/fashion">Fashion</Link>
-              {menu === "fashion" ? <hr /> : null}
-            </li>
-            <li onClick={() => setMenu("toysandgames")}>
-              <Link to="/toysandgames">Toys & Games</Link>
-              {menu === "toysandgames" ? <hr /> : null}
+            <li><Link to="/">Shop</Link></li>
+            <li><Link to="/electronics">Electronics</Link></li>
+            <li><Link to="/footwear">Footwear</Link></li>
+            <li><Link to="/fashion">Fashion</Link></li>
+            <li><Link to="/toysandgames">Toys & Games</Link></li>
+            
+            <li className="dropdown">
+              <button onClick={() => setMenu(menu === "manymore" ? "" : "manymore")} className="dropdown-btn">
+                Many More <i className="fa fa-angle-down"></i>
+              </button>
+              {menu === "manymore" && (
+                <ul className="dropdown-menu">
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <li key={category.id} className="dropdown-item">
+                        <Link to={`/${category.name}`} onClick={() => setMenu("")}>{category.name}</Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="dropdown-item">No Categories</li>
+                  )}
+                </ul>
+              )}
             </li>
           </>
         )}
@@ -80,27 +73,24 @@ export const Navbar = () => {
       <div className="nav-login-cart">
         {token ? (
           <div className="profile">
-            <div className="profile-icon" onClick={() => setMenu("")}>
-              <Link to={user?.role === "admin" ? "/admin/profile" : "/profile"}>
-                <img src={profilelogo} alt="Profile" />
-              </Link>
-            </div>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
+            <Link to={user?.role === "admin" ? "/admin/profile" : "/profile"}>
+              <img src={profilelogo} alt="Profile" className="profile-logo"/>
+            </Link>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
           </div>
         ) : (
           <Link to="/login">
             <button className="login-btn">Login</button>
           </Link>
         )}
-
         {user?.role !== "admin" && (
-          <Link to="/cart">
-            <img src={cart_icon} alt="Cart" />
-          </Link>
+          <>
+            <Link to="/cart">
+              <img src={cart_icon} alt="Cart" />
+            </Link>
+            <div className="nav-cart-count">{getTotalCartItems()}</div>
+          </>
         )}
-        {user?.role !== "admin" && <div className="nav-cart-count">{getTotalCartItems()}</div>}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export const CreateProduct = () => {
     const [price, setPrice] = useState("");
     const [stock, setStock] = useState("");
     const [productPicture, setProductPicture] = useState(null); 
-    const [category_id, setcategory_id] = useState(null); 
+    const [category_id, setcategory_id] = useState(""); 
     
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -44,6 +44,7 @@ export const CreateProduct = () => {
               placeholder="Product Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
             <input
               type="text"
@@ -56,24 +57,28 @@ export const CreateProduct = () => {
               placeholder="Price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
+              required
             />
             <input
               type="number"
               placeholder="Stock"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
+              required
             />
             <input
               type="number"
               placeholder="Category_id"
               value={category_id}
               onChange={(e) => setcategory_id(e.target.value)}
+              required
             />
             <input
               type="file"
               name="productPicture"
               accept="image/*"
               onChange={(e) => setProductPicture(e.target.files[0])}
+              required
             />
             <button type="submit">Create</button>
           </form>

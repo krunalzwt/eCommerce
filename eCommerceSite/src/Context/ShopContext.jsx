@@ -128,6 +128,7 @@ export const ShopContextProvider = ({ children }) => {
           },
         }
       );
+      
   
       if (response.status === 201) {
         toast.success("Product created successfully!");
@@ -135,8 +136,15 @@ export const ShopContextProvider = ({ children }) => {
         toast.error("Failed to create product.");
       }
     } catch (error) {
-      console.error("Error creating product:", error);
-      toast.error("Something went wrong. Please try again.");
+      if (error.response) {
+        if (error.response.status === 400) {
+          toast.error("This category does not exist!!");
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
+      } else {
+        toast.error("Network error or server not responding.");
+      }
     }
   }
 
@@ -152,9 +160,6 @@ export const ShopContextProvider = ({ children }) => {
     }
   }
   
-  
-  
-
   const fetchCategories = async () => {
     try {
       const { data } = await axios.get("http://localhost:8080/api/categories");

@@ -73,19 +73,66 @@
     background: red;
     color: white;
 }
-.profile-icon img{
+.profile-logo{
     height: 60px;
     width: 60px;
     cursor: pointer;
 }
-.profile-icon{
+.profile-logo{
     display: flex;
+    justify-content: center;
 }
 
 .profile{
     display: flex;
     align-items: center;
     gap: 12px;
+}
+.dropdown {
+    position: relative;
+}
+
+.dropdown-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #551A8B;
+    display: flex;
+    align-items: center;
+    font-family: "Poppins";
+    gap: 5px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    list-style: none;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 100;
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-item a {
+    text-decoration: none;
+    color: #626262;
+    font-size: 18px;
+}
+
+.dropdown-item:hover {
+    background: #f3f3f3;
 }
 
 
