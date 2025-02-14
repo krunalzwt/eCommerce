@@ -361,7 +361,7 @@ export const ShopContextProvider = ({ children }) => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Order placed successfully!");
+      toast.success("Order placed successfully!Invoice sent to your mail!");
       setCart([]);
       fetchOrderItems();
     } catch (err) {
