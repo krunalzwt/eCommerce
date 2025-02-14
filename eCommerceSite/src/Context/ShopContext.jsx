@@ -238,7 +238,6 @@ export const ShopContextProvider = ({ children }) => {
 
   const removeFromCart = async (cartItemId) => {
     if (!token) return;
-    
 
     try {
       await axios.delete(`http://localhost:8080/api/cart/${cartItemId}`, {

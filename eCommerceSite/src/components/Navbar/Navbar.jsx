@@ -13,7 +13,7 @@ export const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    fetchCategories(); // Fetch categories on mount
+    fetchCategories(); 
     const path = location.pathname.split("/")[1];
     setMenu(path || "shop");
   }, [location.pathname]);
