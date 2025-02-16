@@ -134,11 +134,12 @@ export const ShopContextProvider = ({ children }) => {
         toast.error("Failed to create product.");
       }
     } catch (error) {
-      if (response.status === 400) {
+      if (error.response.status === 400) {
         toast.error("this category does not exists!!");
+      }else{
+        console.error("Error creating product:", error);
+        toast.error("Something went wrong. Please try again.");
       }
-      console.error("Error creating product:", error);
-      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -249,6 +250,24 @@ export const ShopContextProvider = ({ children }) => {
       console.error("Error removing from cart:", err);
     }
   };
+
+  const removeOneItem = async (product_id) => {
+    if (!token) return;
+
+    try {
+        await axios.post(
+            "http://localhost:8080/api/cartitem",
+            { product_id }, 
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        toast.success("One quantity removed from the cart!");
+        fetchCart();
+    } catch (err) {
+        console.error("Error removing item from cart:", err.response?.data || err);
+    }
+};
 
   const getTotalCartItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
@@ -495,6 +514,7 @@ export const ShopContextProvider = ({ children }) => {
         adminLogin,
         addToCart,
         removeFromCart,
+        removeOneItem,
         token,
         fetchProducts,
         addNewCategories,

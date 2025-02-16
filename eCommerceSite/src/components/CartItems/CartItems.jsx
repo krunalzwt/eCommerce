@@ -11,11 +11,24 @@ export const CartItems = () => {
     fetchCart,
     removeFromCart,
     placeOrder,
+    addToCart,
+    removeOneItem
   } = useContext(ShopContext);
 
   useEffect(() => {
-    fetchCart();
+    fetchCart(); 
   }, []);
+
+  const handleRemoveOne = async (item) => {
+    const productId = item.product_id || (item.product ? item.product.id : undefined);
+
+    if (!productId) {
+        console.error("Invalid product data:", item);
+        return;
+    }
+    await removeOneItem(productId);
+};
+
 
   return (
     <div className="cartitems">
@@ -33,31 +46,40 @@ export const CartItems = () => {
       ) : (
         cart.map((item) => (
           <div key={item.id} className="cartitems-format cartitems-format-main">
-            <img
-              className="carticon-product-icon"
-              src={`http://localhost:8080/uploads/${item.product.image_url
-                .split("\\")
-                .pop()}`}
-              alt={item.product.name}
-            />
-            <p>{item.product.name}</p>
-            <p>&#8377;{item.product.price}</p>
-            <button className="cartitems-quantity">{item.quantity}</button>
-            <p>&#8377;{item.product.price * item.quantity}</p>
-            <img
-              src={remove_icon}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Are you sure you want to remove this item from your cart?"
-                  )
-                ) {
-                  removeFromCart(item.id);
-                }
-              }}
-              alt=""
-              className="carticon-remove-icon"
-            />
+            {item.product && (
+              <>
+                <img
+                  className="carticon-product-icon"
+                  src={`http://localhost:8080/uploads/${item.product.image_url
+                    .split("\\")
+                    .pop()}`}
+                  alt={item.product.name}
+                />
+                <p>{item.product.name}</p>
+                <p>&#8377;{item.product.price}</p>
+                <div className="cartitems-quantity-controls">
+                  <button className="addremove-btn" onClick={() => handleRemoveOne(item)} >-</button>
+                  <button className="cartitems-quantity">{item.quantity}</button>
+                  <button className="addremove-btn" onClick={() => addToCart(item.product_id)} >+</button>
+                </div>
+                <p>&#8377;{item.product.price * item.quantity}</p>
+                <img
+                  src={remove_icon}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to remove this item from your cart?"
+                      )
+                    ) {
+                      removeFromCart(item.id);
+                      fetchCart();
+                    }
+                  }}
+                  alt="Remove"
+                  className="carticon-remove-icon"
+                />
+              </>
+            )}
           </div>
         ))
       )}
@@ -70,7 +92,7 @@ export const CartItems = () => {
               <p>
                 &#8377;
                 {cart.reduce(
-                  (acc, item) => acc + item.product.price * item.quantity,
+                  (acc, item) => acc + (item.product?.price || 0) * item.quantity,
                   0
                 )}
               </p>
@@ -87,7 +109,7 @@ export const CartItems = () => {
                 <strong>
                   &#8377;
                   {cart.reduce(
-                    (acc, item) => acc + item.product.price * item.quantity,
+                    (acc, item) => acc + (item.product?.price || 0) * item.quantity,
                     0
                   )}
                 </strong>
