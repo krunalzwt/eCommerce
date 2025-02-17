@@ -134,11 +134,11 @@ export const ShopContextProvider = ({ children }) => {
         toast.error("Failed to create product.");
       }
     } catch (error) {
-      if (error.response.status === 400) {
-        toast.error("this category does not exists!!");
+      console.log(error.response.data.message[0])
+      if(typeof(error.response.data.message)==="string"){
+        toast.error(error.response.data.message);
       }else{
-        console.error("Error creating product:", error);
-        toast.error("Something went wrong. Please try again.");
+        toast.error(error.response.data.message[0]);
       }
     }
   };
