@@ -1,0 +1,6 @@
+same name and category product not allowed(done)
+order details in admin panel
+positive price in product creation and update (done)
+img should render while clicking on edit product
+cart quantity (+ -) button (done)
+category name in dropdown while creating or updating a product(done)
